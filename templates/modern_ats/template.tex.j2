@@ -1,0 +1,142 @@
+\documentclass[11pt,a4paper]{article}
+
+% ── Packages ─────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+% ── Colors ───────────────────────────────────────────────────────────────────
+\definecolor{headercolor}{RGB}{10, 22, 40}
+\definecolor{linkcolor}{RGB}{0, 0, 0}
+
+% ── Formatting ───────────────────────────────────────────────────────────────
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% Section formatting
+\titleformat{\section}
+  {\large\bfseries\color{headercolor}\uppercase}
+  {}
+  {0em}
+  {}
+  [\vspace{-0.5em}\rule{\textwidth}{0.5pt}]
+
+\titlespacing*{\section}{0pt}{0.8em}{0.4em}
+
+% List formatting
+\setlist[itemize]{leftmargin=1.5em, itemsep=0.1em, parsep=0pt, topsep=0.2em}
+
+% Link formatting
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linkcolor,
+    urlcolor=linkcolor,
+    pdfborder={0 0 0}
+}
+
+% ── Document ─────────────────────────────────────────────────────────────────
+\begin{document}
+
+% ── Header ───────────────────────────────────────────────────────────────────
+\begin{center}
+    {\LARGE\bfseries\color{headercolor} (( personal_details.full_name | tex_escape ))}\\[0.3em]
+    ((* if personal_details.email or personal_details.phone *))
+    (( personal_details.email | tex_escape if personal_details.email else "" ))((* if personal_details.email and personal_details.phone *)) \textbar\ ((* endif *))(( personal_details.phone | tex_escape if personal_details.phone else "" ))\\[0.2em]
+    ((* endif *))
+    ((* if personal_details.location *))
+    (( personal_details.location | tex_escape ))\\[0.2em]
+    ((* endif *))
+    ((* if personal_details.linkedin or personal_details.github *))
+    ((* if personal_details.linkedin *))\href{(( personal_details.linkedin ))}{LinkedIn}((* endif *))((* if personal_details.linkedin and personal_details.github *)) \textbar\ ((* endif *))((* if personal_details.github *))\href{(( personal_details.github ))}{GitHub}((* endif *))
+    ((* endif *))
+\end{center}
+
+% ── Professional Summary ─────────────────────────────────────────────────────
+((* if summary *))
+\section{Professional Summary}
+(( summary | tex_escape ))
+((* endif *))
+
+% ── Experience ───────────────────────────────────────────────────────────────
+((* if experience *))
+\section{Professional Experience}
+((* for job in experience *))
+\textbf{(( job.title | tex_escape ))} \hfill \textit{(( job.start_date | tex_escape if job.start_date else "" )) -- (( job.end_date | tex_escape if job.end_date else "Present" ))}\\
+\textit{(( job.company | tex_escape ))}((* if job.location *)), (( job.location | tex_escape ))((* endif *))
+((* if job.bullets *))
+\begin{itemize}
+((* for bullet in job.bullets *))
+    \item (( bullet | tex_escape ))
+((* endfor *))
+\end{itemize}
+((* endif *))
+((* if not loop.last *))\vspace{0.3em}((* endif *))
+((* endfor *))
+((* endif *))
+
+% ── Skills ───────────────────────────────────────────────────────────────────
+((* if skills or skill_categories *))
+\section{Technical Skills}
+((* if skill_categories *))
+((* for category, skill_list in skill_categories.items() *))
+\textbf{(( category | tex_escape )):} (( skill_list | join(", ") | tex_escape ))\\[0.2em]
+((* endfor *))
+((* elif skills *))
+(( skills | join(", ") | tex_escape ))
+((* endif *))
+((* endif *))
+
+% ── Projects ─────────────────────────────────────────────────────────────────
+((* if projects *))
+\section{Key Projects}
+((* for project in projects *))
+\textbf{(( project.name | tex_escape ))}((* if project.technologies *)) \textit{((  project.technologies | join(", ") | tex_escape ))}((* endif *))
+((* if project.description *))\\(( project.description | tex_escape ))((* endif *))
+((* if project.bullets *))
+\begin{itemize}
+((* for bullet in project.bullets *))
+    \item (( bullet | tex_escape ))
+((* endfor *))
+\end{itemize}
+((* endif *))
+((* if not loop.last *))\vspace{0.3em}((* endif *))
+((* endfor *))
+((* endif *))
+
+% ── Certifications ───────────────────────────────────────────────────────────
+((* if certifications *))
+\section{Certifications}
+\begin{itemize}
+((* for cert in certifications *))
+    \item \textbf{(( cert.name | tex_escape ))}((* if cert.issuer *)) -- (( cert.issuer | tex_escape ))((* endif *))((* if cert.date *)) \hfill \textit{(( cert.date | tex_escape ))}((* endif *))
+((* endfor *))
+\end{itemize}
+((* endif *))
+
+% ── Education ────────────────────────────────────────────────────────────────
+((* if education *))
+\section{Education}
+((* for edu in education *))
+\textbf{(( edu.degree | tex_escape ))}((* if edu.field *)) in (( edu.field | tex_escape ))((* endif *)) \hfill ((* if edu.end_date *))\textit{(( edu.end_date | tex_escape ))}((* endif *))\\
+\textit{(( edu.institution | tex_escape ))}
+((* if not loop.last *))\vspace{0.3em}((* endif *))
+((* endfor *))
+((* endif *))
+
+% ── Awards ───────────────────────────────────────────────────────────────────
+((* if awards *))
+\section{Awards \& Recognition}
+\begin{itemize}
+((* for award in awards *))
+    \item (( award | tex_escape ))
+((* endfor *))
+\end{itemize}
+((* endif *))
+
+\end{document}
