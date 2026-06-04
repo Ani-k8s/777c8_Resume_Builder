@@ -11,13 +11,16 @@ class SettingsService:
         result = await db.execute(select(SystemSettings).where(SystemSettings.id == 1))
         settings = result.scalar_one_or_none()
         if not settings:
+            from app.core.config import settings as config_settings
+            active_provider = config_settings.DEFAULT_PROVIDER or "openai"
+            active_model = config_settings.DEFAULT_MODEL or "gpt-4o-mini"
             settings = SystemSettings(
                 id=1,
                 encrypt_files=False,
                 master_resume_locked=True,
                 ollama_url="http://localhost:11434",
-                active_provider="openai",
-                active_model="gpt-4o-mini",
+                active_provider=active_provider,
+                active_model=active_model,
                 backup_interval_days=7,
                 failover_enabled=True,
                 failover_provider="openrouter"

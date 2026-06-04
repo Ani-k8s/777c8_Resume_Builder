@@ -3,6 +3,7 @@
 SQLAlchemy async engine with SQLite default, PostgreSQL-ready.
 """
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 
@@ -48,71 +49,71 @@ async def init_db() -> None:
         
         # Add new columns to existing tables if they do not exist
         try:
-            await conn.execute("ALTER TABLE master_resumes ADD COLUMN is_locked BOOLEAN DEFAULT 1")
+            await conn.execute(text("ALTER TABLE master_resumes ADD COLUMN is_locked BOOLEAN DEFAULT 1"))
         except Exception:
             pass
         
         try:
-            await conn.execute("ALTER TABLE generated_resumes ADD COLUMN recruiter_readability_score FLOAT DEFAULT 0.0")
+            await conn.execute(text("ALTER TABLE generated_resumes ADD COLUMN recruiter_readability_score FLOAT DEFAULT 0.0"))
         except Exception:
             pass
             
         try:
-            await conn.execute("ALTER TABLE generated_resumes ADD COLUMN grammar_score FLOAT DEFAULT 0.0")
+            await conn.execute(text("ALTER TABLE generated_resumes ADD COLUMN grammar_score FLOAT DEFAULT 0.0"))
         except Exception:
             pass
             
         try:
-            await conn.execute("ALTER TABLE generated_resumes ADD COLUMN readability_metrics JSON")
+            await conn.execute(text("ALTER TABLE generated_resumes ADD COLUMN readability_metrics JSON"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE applications ADD COLUMN company_id INTEGER")
+            await conn.execute(text("ALTER TABLE applications ADD COLUMN company_id INTEGER"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE applications ADD COLUMN recruiter_id INTEGER")
+            await conn.execute(text("ALTER TABLE applications ADD COLUMN recruiter_id INTEGER"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE applications ADD COLUMN cover_letter_content TEXT")
+            await conn.execute(text("ALTER TABLE applications ADD COLUMN cover_letter_content TEXT"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE applications ADD COLUMN linkedin_messages JSON")
+            await conn.execute(text("ALTER TABLE applications ADD COLUMN linkedin_messages JSON"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE applications ADD COLUMN skill_gap_analysis JSON")
+            await conn.execute(text("ALTER TABLE applications ADD COLUMN skill_gap_analysis JSON"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE interviews ADD COLUMN questions_asked TEXT")
+            await conn.execute(text("ALTER TABLE interviews ADD COLUMN questions_asked TEXT"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE interviews ADD COLUMN answers_given TEXT")
+            await conn.execute(text("ALTER TABLE interviews ADD COLUMN answers_given TEXT"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE interviews ADD COLUMN lessons_learned TEXT")
+            await conn.execute(text("ALTER TABLE interviews ADD COLUMN lessons_learned TEXT"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE interviews ADD COLUMN performance_metrics JSON")
+            await conn.execute(text("ALTER TABLE interviews ADD COLUMN performance_metrics JSON"))
         except Exception:
             pass
 
         try:
-            await conn.execute("ALTER TABLE system_settings ADD COLUMN benchmark_enabled BOOLEAN DEFAULT 0")
+            await conn.execute(text("ALTER TABLE system_settings ADD COLUMN benchmark_enabled BOOLEAN DEFAULT 0"))
         except Exception:
             pass

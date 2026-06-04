@@ -33,11 +33,38 @@ async def upload_master_resume(
     if file_ext not in resume_parser.SUPPORTED_FORMATS:
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported file format: .{file_ext}. Supported: PDF, DOCX, TXT",
+            detail=f"Unsupported file format: .{file_ext}. Supported formats: PDF, DOCX, TXT",
+        )
+
+    # Read and validate content size
+    try:
+        content = await file.read()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to read uploaded file: {str(e)}"
+        )
+
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(
+            status_code=400,
+            detail="File size exceeds the maximum limit of 10MB."
+        )
+    if len(content) == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded file is empty and cannot be processed."
         )
 
     # Save uploaded file
-    settings.UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        settings.ensure_directories()
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to initialize storage directories: {str(e)}"
+        )
+
     file_path = settings.UPLOADS_DIR / f"{name.replace(' ', '_')}_{file.filename}"
 
     from app.services.settings_service import settings_service
@@ -46,52 +73,102 @@ async def upload_master_resume(
     try:
         system_settings = await settings_service.get_settings(db)
         encrypt = system_settings.encrypt_files
-        content = await file.read()
         crypto_service.secure_write_bytes(file_path, content, encrypt=encrypt)
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Application security error: {str(ve)}"
+        )
+    except PermissionError:
+        raise HTTPException(
+            status_code=500,
+            detail="Storage write permission denied. Please verify folder permissions."
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to write file to storage: {str(e)}"
+        )
 
     # Parse resume
     try:
         extracted = await resume_parser.parse(str(file_path), file_ext)
         extracted_dict = extracted.model_dump()
+    except ValueError as ve:
+        if file_path.exists():
+            try:
+                file_path.unlink()
+            except Exception:
+                pass
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to parse resume: {str(ve)}"
+        )
+    except RuntimeError as re:
+        if file_path.exists():
+            try:
+                file_path.unlink()
+            except Exception:
+                pass
+        raise HTTPException(
+            status_code=500,
+            detail=f"Resume parser environment issue: {str(re)}"
+        )
     except Exception as e:
-        logger.error(f"Resume parsing failed: {e}")
-        extracted_dict = {}
+        if file_path.exists():
+            try:
+                file_path.unlink()
+            except Exception:
+                pass
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unexpected error parsing resume: {str(e)}"
+        )
 
     # Create database record
-    resume = MasterResume(
-        name=name,
-        file_path=str(file_path),
-        file_type=file_ext,
-        is_active=False,
-        extracted_data=extracted_dict,
-        version=1,
-        source_of_truth=True,
-    )
+    try:
+        resume = MasterResume(
+            name=name,
+            file_path=str(file_path),
+            file_type=file_ext,
+            is_active=False,
+            extracted_data=extracted_dict,
+            version=1,
+            source_of_truth=True,
+        )
 
-    db.add(resume)
-    await db.flush()
+        db.add(resume)
+        await db.flush()
 
-    # Create initial version
-    version = MasterResumeVersion(
-        master_resume_id=resume.id,
-        extracted_data=extracted_dict,
-        version=1,
-        change_description="Initial upload",
-    )
-    db.add(version)
-    await db.flush()
+        # Create initial version
+        version = MasterResumeVersion(
+            master_resume_id=resume.id,
+            extracted_data=extracted_dict,
+            version=1,
+            change_description="Initial upload",
+        )
+        db.add(version)
+        await db.flush()
 
-    # If no active resume exists, activate this one
-    result = await db.execute(
-        select(MasterResume).where(MasterResume.is_active == True, MasterResume.id != resume.id)
-    )
-    if not result.scalars().first():
-        resume.is_active = True
+        # If no active resume exists, activate this one
+        result = await db.execute(
+            select(MasterResume).where(MasterResume.is_active == True, MasterResume.id != resume.id)
+        )
+        if not result.scalars().first():
+            resume.is_active = True
 
-    logger.info(f"Master resume uploaded: {name} (ID: {resume.id})")
-    return resume
+        logger.info(f"Master resume uploaded: {name} (ID: {resume.id})")
+        return resume
+    except Exception as e:
+        if file_path.exists():
+            try:
+                file_path.unlink()
+            except Exception:
+                pass
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database transaction error saving resume: {str(e)}"
+        )
 
 
 @router.get("/", response_model=MasterResumeListResponse)

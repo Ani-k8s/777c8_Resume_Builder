@@ -25,6 +25,12 @@ async def lifespan(app: FastAPI):
     settings.ensure_directories()
     await init_db()
 
+    # Auto-unlock or set up the vault based on environment configuration
+    from app.core.database import async_session_factory
+    from app.core.auth_init import auto_configure_auth
+    async with async_session_factory() as db:
+        await auto_configure_auth(db)
+
     logger.info("Database initialized")
     logger.info(f"OpenAI configured: {bool(settings.OPENAI_API_KEY)}")
     logger.info(f"Storage: {settings.STORAGE_DIR}")

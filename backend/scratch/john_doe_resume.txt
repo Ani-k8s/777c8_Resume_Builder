@@ -1,0 +1,40 @@
+John Doe
+Email: john.doe@example.com
+Phone: +1-555-0199
+GitHub: github.com/johndoe
+LinkedIn: linkedin.com/in/johndoe
+Location: San Francisco, CA
+
+Professional Summary
+Senior Software Engineer with 8+ years of experience designing and building high-performance, scalable web applications and microservices. Expert in Python, FastAPI, React, and AWS cloud architecture. Proven track record of leading cross-functional teams and accelerating software delivery.
+
+Work Experience
+Google | Senior Software Engineer
+San Francisco, CA | June 2021 – Present
+- Spearheaded the redesign of the core search indexer pipeline, reducing query latency by 35% and improving crawl throughput.
+- Designed and implemented a high-throughput stream processing application using Apache Kafka and Python, handling 100M+ events daily.
+- Mentored 5 junior engineers and established CI/CD best practices, improving deployment frequency by 50%.
+
+Microsoft | Software Engineer II
+Redmond, WA | August 2018 – June 2021
+- Developed cloud-native REST APIs in Go and Python deployed on AKS (Azure Kubernetes Service) for millions of active users.
+- Optimized SQL database query performance, reducing database CPU load by 40%.
+
+Technical Skills
+Python, Go, JavaScript, TypeScript, FastAPI, React, Next.js, Django, PostgreSQL, SQLite, Redis, AWS, Azure, Docker, Kubernetes, Git, CI/CD, Apache Kafka
+
+Projects
+Distributed Task Queue
+- Built a custom distributed task queue in Python using Redis, handling task retries, scheduling, and dead-letter queues.
+Cloud Cost Monitor
+- Developed a web app using React and FastAPI to monitor cloud infrastructure costs and automatically identify underutilized resources.
+
+Education
+Stanford University
+Master of Science in Computer Science | 2016 – 2018
+University of Washington
+Bachelor of Science in Computer Science | 2012 – 2016
+
+Certifications
+AWS Certified Solutions Architect – Associate
+CKA: Certified Kubernetes Administrator

@@ -28,7 +28,7 @@ def setup_logging() -> None:
     )
 
     logger.add(
-        settings.STORAGE_DIR / "logs" / "career_os.log",
+        settings.LOGS_DIR / "career_os.log",
         format=log_format,
         level="INFO",
         rotation="10 MB",
